@@ -20,7 +20,6 @@ import os
 from datetime import datetime
 from typing import List, Dict
 
-import wandb
 import torch
 import torch.nn as nn
 import numpy as np
@@ -238,10 +237,6 @@ class TransformerModelWrapper(object):
             for metric, score in result_dict.items():
                 writer.add_scalar(set_type + '-' + metric,
                                   score, global_step=global_step)
-            if kwargs.get('wandb_log', False):
-                # Write scalars with wandb
-                wandb.log({set_type + '-' + metric: score for metric,
-                           score in result_dict.items()})
 
         train_batch_size = per_gpu_train_batch_size * max(1, n_gpu)
         train_dataset = self._generate_dataset(train_data)

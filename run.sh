@@ -12,7 +12,7 @@ python3 cli.py \
     --model_type roberta \
     --model_name_or_path roberta-base \
     --cache_dir pretrain/roberta-base \
-    --task_name sst-2 \
+    --task_name SST-2 \
     --output_dir output/sst-2-inner \
     --do_eval \
     --do_train \

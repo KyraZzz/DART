@@ -120,7 +120,7 @@ def process_args(args):
 
     # Setup CUDA, GPU & distributed training
     args.device = "cuda" if torch.cuda.is_available() and not args.no_cuda else "cpu"
-    args.n_gpu = torch.cuda.device_count()
+    args.n_gpu = 1
 
     # Prepare task
     if args.task_name not in PROCESSORS:
