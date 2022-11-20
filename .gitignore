@@ -8,4 +8,4 @@ wandb/
 visual/
 word*.json
 *DS_Store
-**/datasets
+**/data
