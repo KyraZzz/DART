@@ -640,8 +640,11 @@ class TransformerModelWrapper(object):
         model = self.model.module if hasattr(
             self.model, 'module') else self.model
 
+        print(f"input_ids size: {input_ids.size()}")
         word_embeddings = model.model.get_input_embeddings()
+        print(f"word_embeddings: {word_embeddings}")
         raw_embeds = word_embeddings(input_ids)
+        print(f"raw_embeds size: {raw_embeds.size()}")
 
         replace_embeds = model.prompt_embeddings(
             torch.LongTensor(list(range(model.prompt_length))).to(raw_embeds.device))
@@ -665,6 +668,7 @@ class TransformerModelWrapper(object):
         elif self.config.prompt_encoder_type == "inner":
             # assert set(self.encoder.pattern_convert.keys()) == set(input_ids[torch.where(block_flag==1)].tolist())
             replace_embeds = self.encoder.get_replace_embeds(word_embeddings)
+            print(f"replace_embeds size: {replace_embeds.size()}")
 
         else:
             raise ValueError("unknown prompt_encoder_type.")
@@ -672,7 +676,8 @@ class TransformerModelWrapper(object):
         if replace_embeds is not None:  # For normal cases where prompt encoder is not None
             blocked_indices = (block_flag == 1).nonzero(as_tuple=False).reshape(
                 (bz, model.prompt_length, 2))[:, :, 1]
-
+            print(f"blocked_indices: {blocked_indices}")
+            
             for bidx in range(bz):
                 for i in range(blocked_indices.shape[1]):
                     raw_embeds[bidx, blocked_indices[bidx, i],

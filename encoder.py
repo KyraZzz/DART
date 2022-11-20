@@ -21,6 +21,9 @@ class PromptEncoder(object):
                     part, add_special_tokens=False, **kwargs)
                 pattern_token_set.update(token_ids)
                 pattern_token_indices.extend(token_ids)
+        
+        # pattern_token_set: {243, 4, 7325}
+        # pattern_token_indices: [243, 7325, 4]
 
         # Record label tokens
         label_token_ids = []
@@ -46,23 +49,28 @@ class PromptEncoder(object):
         else:
             # ALBERT, RoBERTa
             start_idx = tokenizer.vocab_size - 100
+            # pattern_convert: {243: 50165, 4: 50166, 7325: 50167}
             self.pattern_convert = {token_id: start_idx + idx
                                     for idx, token_id in enumerate(pattern_token_set)}
+            # label_convert: {102: 50215, 18317: 50216}
             self.label_convert = {token_id: start_idx + 50 + idx
                                   for idx, token_id in enumerate(label_token_ids)}
 
         # Convert mlm logits to cls logits
         self.vocab_size = tokenizer.vocab_size
+        # m2c_tensor: tensor([50215, 50216]), list of label tokens
         self.m2c_tensor = torch.tensor( 
             list(self.label_convert.values()), dtype=torch.long)
 
         # Use lookup tensor to get replace embeddings
+        # lookup_tensor: tensor([50165, 50167, 50166]), list of diff trigger tokens
         self.lookup_tensor = torch.tensor([self.pattern_convert[origin]
                                            for origin in pattern_token_indices],
                                           dtype=torch.long)
 
     def init_embed(self, model, random_=False):
         w = model.get_input_embeddings().weight.data
+        print(f"w size: {w.size()}")
         for origin_id, convert_id in self.pattern_convert.items():
             if random_:
                 max_val = w[convert_id].abs().max()
@@ -103,7 +111,9 @@ class PromptEncoder(object):
         return model.get_input_embeddings().register_backward_hook(stop_gradient)
 
     def get_replace_embeds(self, word_embeddings):
+        # lookup tensor: the list of diff tokens, e.g., lookup_tensor: tensor([50165, 50167, 50166])
         return word_embeddings(self.lookup_tensor.to(word_embeddings.weight.device))
 
     def convert_mlm_logits_to_cls_logits(self, mlm_labels, logits):
+        # verbaliser word embedding in logits, e.g., dim=-1, m2c_tensor: tensor([50215, 50216])
         return torch.index_select(logits[mlm_labels != -1], -1, self.m2c_tensor.to(logits.device))
