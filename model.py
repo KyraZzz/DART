@@ -265,6 +265,7 @@ class TransformerModelWrapper(object):
         ]
         embedding_parameters = None
         stage = kwargs.get('stage', 0)
+        print(f"stage: {stage}")
 
         if self.config.prompt_encoder_type == "lstm":
             embedding_parameters = [
@@ -283,12 +284,14 @@ class TransformerModelWrapper(object):
             if stage == 1:
                 # Training stage 1: only optimize prompt-related tokens
                 handle = self.encoder.add_embed_hook(cur_model.model)
+                print("handle: stage 1 add_embed_hook")
                 optimizer_grouped_parameters = [{'params': [p for p in cur_model.model.get_input_embeddings().parameters()],
                                                  'weight_decay': 0.0}]
             else:
                 # Training stage 0 / 2: optimize all model weights with different learning rates
                 # This is used when training LM ONLY!
                 handle = self.encoder.add_reverse_hook((cur_model.model))
+                print("handle: stage 0 / 2 add_reverse_hook")
                 embedding_parameters = [{'params': [p for p in cur_model.model.get_input_embeddings().parameters()],
                                          'weight_decay': 0.0}]
                 optimizer_grouped_parameters[0] = {'params': [p for n, p in cur_model.model.named_parameters()
@@ -297,6 +300,7 @@ class TransformerModelWrapper(object):
                 # Mask out gradients of tokens unrelated with prompt / label
                 if kwargs.get('fix_other_embeddings', False):
                     handle = self.encoder.add_embed_hook(cur_model.model)
+                    print("handle: stage 0 / 2 add_embed_hook")
                     # embedding_parameters[0]['weight_decay'] = 0.0
         optimizer_list, scheduler_list = [], []
         optimizer_list.append(
@@ -640,11 +644,8 @@ class TransformerModelWrapper(object):
         model = self.model.module if hasattr(
             self.model, 'module') else self.model
 
-        print(f"input_ids size: {input_ids.size()}")
         word_embeddings = model.model.get_input_embeddings()
-        print(f"word_embeddings: {word_embeddings}")
         raw_embeds = word_embeddings(input_ids)
-        print(f"raw_embeds size: {raw_embeds.size()}")
 
         replace_embeds = model.prompt_embeddings(
             torch.LongTensor(list(range(model.prompt_length))).to(raw_embeds.device))

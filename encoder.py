@@ -49,10 +49,10 @@ class PromptEncoder(object):
         else:
             # ALBERT, RoBERTa
             start_idx = tokenizer.vocab_size - 100
-            # pattern_convert: {243: 50165, 4: 50166, 7325: 50167}
+            # pattern_convert: {243('It'): 50165, 4('.'): 50166, 7325('was'): 50167}
             self.pattern_convert = {token_id: start_idx + idx
                                     for idx, token_id in enumerate(pattern_token_set)}
-            # label_convert: {102: 50215, 18317: 50216}
+            # label_convert: {102('a'): 50215, 18317('fun'): 50216}
             self.label_convert = {token_id: start_idx + 50 + idx
                                   for idx, token_id in enumerate(label_token_ids)}
 
@@ -69,8 +69,8 @@ class PromptEncoder(object):
                                           dtype=torch.long)
 
     def init_embed(self, model, random_=False):
+        # input_embeddings: Embeddings(tokenizer.vocab_size, 768, padding_idx=1)
         w = model.get_input_embeddings().weight.data
-        print(f"w size: {w.size()}")
         for origin_id, convert_id in self.pattern_convert.items():
             if random_:
                 max_val = w[convert_id].abs().max()
