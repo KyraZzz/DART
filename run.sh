@@ -25,4 +25,5 @@ python3 cli.py \
     --learning_rate 1e-4 \
     --eval_set "test" \
     --prompt_encoder_type "inner" \
+    --extra_mask_rate 0.1 \
     1> ${dir}/cl_job_output/${month_day}/log_${time}.out 2>&1
