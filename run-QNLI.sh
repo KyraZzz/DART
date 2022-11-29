@@ -8,12 +8,12 @@ touch ./cl_job_output/${month_day}/log_${time}.out
 cd /local/scratch-3/yz709/DART
 
 python3 cli.py \
-    --data_dir data/k-shot/SST-2/16-21 \
+    --data_dir data/k-shot/QNLI/16-21 \
     --model_type roberta \
     --model_name_or_path roberta-base \
     --cache_dir pretrain/roberta-base \
-    --task_name SST-2 \
-    --output_dir output/sst-2-inner \
+    --task_name QNLI \
+    --output_dir output/qnli-2-inner \
     --do_eval \
     --do_train \
     --pet_per_gpu_eval_batch_size 8 \
@@ -22,7 +22,7 @@ python3 cli.py \
     --pet_max_seq_length 128 \
     --pet_max_steps 250 \
     --pattern_ids 2 \
-    --learning_rate 1e-4 \
+    --learning_rate 5e-5 \
     --eval_set "test" \
     --prompt_encoder_type "inner" \
     --extra_mask_rate 0.1 \

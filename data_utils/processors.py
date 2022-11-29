@@ -611,10 +611,11 @@ class Sst2Processor(DataProcessor):
 
 class MnliProcessor(DataProcessor):
     """Processor for the MNLI data set (GLUE)."""
-
-    TEXT_A_INDEX = 8
-    TEXT_B_INDEX = 9
-    LABEL_INDEX = -1
+    def __init__(self):
+        super().__init__()
+        self.TEXT_A_INDEX = 8
+        self.TEXT_B_INDEX = 9
+        self.LABEL_INDEX = -1
 
     def get_train_examples(self, data_dir):
         return self._create_examples(os.path.join(data_dir, "train.tsv"), "train")
@@ -639,7 +640,6 @@ class MnliProcessor(DataProcessor):
     def _create_examples(self, path: str, set_type: str, hypothesis_name: str = "hypothesis",
                          premise_name: str = "premise") -> List[InputExample]:
         examples = []
-
         with open(path, encoding='utf8') as f:
             for i, line in enumerate(f.readlines()):
                 if i == 0:
@@ -769,9 +769,10 @@ class SnliProcessor(MnliProcessor):
 
 class QnliProcessor(SnliProcessor):
     """Processor for the QNLI data set (GLUE)."""
-
-    TEXT_A_INDEX = 1
-    TEXT_B_INDEX = 2
+    def __init__(self):
+        super().__init__()
+        self.TEXT_A_INDEX = 1
+        self.TEXT_B_INDEX = 2
 
     def get_labels(self):
         return ["entailment", "not_entailment"]

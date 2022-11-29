@@ -5,7 +5,7 @@ python3 cli.py \
 --model_type albert \
 --model_name_or_path albert-xxlarge-v2 \
 --cache_dir pretrain/albert-xxlarge-v2 \
---task_name mnli \
+--task_name mnli-inner \
 --output_dir output/mnli \
 --do_eval \
 --do_train \
@@ -17,7 +17,7 @@ python3 cli.py \
 --pattern_ids 2 \
 --learning_rate 1e-4 \
 --eval_set "test" \
---prompt_encoder_type "none"
+--prompt_encoder_type "inner"
 
 # None encoder
 # eval_results:
